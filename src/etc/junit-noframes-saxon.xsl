@@ -280,6 +280,22 @@
                     Properties &#187;
                 </a>
             </div>
+            <xsl:if test="string-length(normalize-space(./system-out))!=0">
+                <div class="Properties">
+                    <details>
+                        <summary>System.out&#160;&#187;</summary>
+                        <pre style="text-align: left;"><xsl:value-of select="./system-out"/></pre>
+                    </details>
+                </div>
+            </xsl:if>
+            <xsl:if test="string-length(normalize-space(./system-err))!=0">
+                <div class="Properties">
+                    <details>
+                        <summary>System.err&#160;&#187;</summary>
+                        <pre style="text-align: left;"><xsl:value-of select="./system-err"/></pre>
+                    </details>
+                </div>
+            </xsl:if>
             <p/>
 
             <a href="#top">Back to top</a>
@@ -455,6 +471,28 @@
             </xsl:call-template>
         </td>
     </tr>
+    <xsl:if test="string-length(normalize-space(./system-out))!=0 or string-length(normalize-space(./system-err))!=0">
+        <tr valign="top">
+            <td colspan="4">
+                <xsl:if test="string-length(normalize-space(./system-out))!=0">
+                    <div class="Properties">
+                        <details>
+                            <summary style="cursor: pointer;">System.out&#160;&#187;</summary>
+                            <pre style="text-align: left;"><xsl:value-of select="./system-out"/></pre>
+                        </details>
+                    </div>
+                </xsl:if>
+                <xsl:if test="string-length(normalize-space(./system-err))!=0">
+                    <div class="Properties">
+                        <details>
+                            <summary style="cursor: pointer;">System.err&#160;&#187;</summary>
+                            <pre style="text-align: left;"><xsl:value-of select="./system-err"/></pre>
+                        </details>
+                    </div>
+                </xsl:if>
+            </td>
+        </tr>
+    </xsl:if>
 </xsl:template>
 
 
@@ -473,9 +511,9 @@
 <!-- Style for the error, failure and skipped in the testcase template -->
 <xsl:template name="display-failures">
     <xsl:choose>
-        <xsl:when test="not(@message)">N/A</xsl:when>
+        <xsl:when test="not(@type) and not(@message)">N/A</xsl:when>
         <xsl:otherwise>
-            <xsl:value-of select="@message"/>
+            <xsl:value-of select="normalize-space(concat(@type, ' ', @message))"/>
         </xsl:otherwise>
     </xsl:choose>
     <!-- display the stacktrace -->

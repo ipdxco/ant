@@ -157,7 +157,7 @@
             <xsl:result-document href="file:///{$output.dir}/{$package.dir}/{@id}_{@name}.html">
                 <xsl:apply-templates select="." mode="class.details"/>
             </xsl:result-document>
-            <xsl:if test="string-length(./system-out)!=0">
+            <xsl:if test="string-length(normalize-space(./system-out))!=0">
                 <xsl:result-document href="file:///{$output.dir}/{$package.dir}/{@id}_{@name}-out.html">
                     <html>
                         <head>
@@ -169,7 +169,7 @@
                     </html>
                 </xsl:result-document>
             </xsl:if>
-            <xsl:if test="string-length(./system-err)!=0">
+            <xsl:if test="string-length(normalize-space(./system-err))!=0">
                 <xsl:result-document href="file:///{$output.dir}/{$package.dir}/{@id}_{@name}-err.html">
                     <html>
                         <head>
@@ -325,24 +325,24 @@
                     </xsl:if>
                     <xsl:choose>
                         <xsl:when test="$type = 'fails'">
-                            <xsl:apply-templates select=".//testcase[failure]" mode="print.test">
+                            <xsl:apply-templates select="./*/testcase[failure]" mode="print.test">
                                 <xsl:with-param name="show.class" select="'yes'"/>
                             </xsl:apply-templates>
                         </xsl:when>
                         <xsl:when test="$type = 'errors'">
-                            <xsl:apply-templates select=".//testsuite[error]" mode="alltests.error.row"/>
-                            <xsl:apply-templates select=".//testcase[error]" mode="print.test">
+                            <xsl:apply-templates select="./testsuite[error]" mode="alltests.error.row"/>
+                            <xsl:apply-templates select="./*/testcase[error]" mode="print.test">
                                 <xsl:with-param name="show.class" select="'yes'"/>
                             </xsl:apply-templates>
                         </xsl:when>
                         <xsl:when test="$type = 'skipped'">
-                            <xsl:apply-templates select=".//testcase[skipped]" mode="print.test">
+                            <xsl:apply-templates select="./*/testcase[skipped]" mode="print.test">
                                 <xsl:with-param name="show.class" select="'yes'"/>
                             </xsl:apply-templates>
                         </xsl:when>
                         <xsl:otherwise>
-                            <xsl:apply-templates select=".//testsuite[error]" mode="alltests.error.row"/>
-                            <xsl:apply-templates select=".//testcase" mode="print.test">
+                            <xsl:apply-templates select="./testsuite[error]" mode="alltests.error.row"/>
+                            <xsl:apply-templates select="./*/testcase" mode="print.test">
                                 <xsl:with-param name="show.class" select="'yes'"/>
                             </xsl:apply-templates>
                         </xsl:otherwise>
@@ -456,22 +456,22 @@
                 <div class="Properties">
                     <a>
                         <xsl:attribute name="href">javascript:displayProperties('<xsl:value-of select="@package"/>.<xsl:value-of select="@name"/>');</xsl:attribute>
-                        Properties &#187;
+                        Properties&#160;&#187;
                     </a>
                 </div>
-                <xsl:if test="string-length(./system-out)!=0">
+                <xsl:if test="string-length(normalize-space(./system-out))!=0">
                     <div class="Properties">
                         <a>
                             <xsl:attribute name="href">./<xsl:value-of select="@id"/>_<xsl:value-of select="@name"/>-out.html</xsl:attribute>
-                            System.out &#187;
+                            System.out&#160;&#187;
                         </a>
                     </div>
                 </xsl:if>
-                <xsl:if test="string-length(./system-err)!=0">
+                <xsl:if test="string-length(normalize-space(./system-err))!=0">
                     <div class="Properties">
                         <a>
                             <xsl:attribute name="href">./<xsl:value-of select="@id"/>_<xsl:value-of select="@name"/>-err.html</xsl:attribute>
-                            System.err &#187;
+                            System.err&#160;&#187;
                         </a>
                     </div>
                 </xsl:if>
@@ -913,6 +913,28 @@
                 </xsl:call-template>
             </td>
         </tr>
+        <xsl:if test="string-length(normalize-space(./system-out))!=0 or string-length(normalize-space(./system-err))!=0">
+            <tr valign="top">
+                <td colspan="4">
+                    <xsl:if test="string-length(normalize-space(./system-out))!=0">
+                        <div class="Properties">
+                            <details>
+                                <summary style="cursor: pointer;">System.out&#160;&#187;</summary>
+                                <pre style="text-align: left;"><xsl:value-of select="./system-out"/></pre>
+                            </details>
+                        </div>
+                    </xsl:if>
+                    <xsl:if test="string-length(normalize-space(./system-err))!=0">
+                        <div class="Properties">
+                            <details>
+                                <summary style="cursor: pointer;">System.err&#160;&#187;</summary>
+                                <pre style="text-align: left;"><xsl:value-of select="./system-err"/></pre>
+                            </details>
+                        </div>
+                    </xsl:if>
+                </td>
+            </tr>
+        </xsl:if>
     </xsl:template>
 
 
@@ -933,9 +955,9 @@
     <!-- Style for the error and failure in the testcase template -->
     <xsl:template name="display-failures">
         <xsl:choose>
-            <xsl:when test="not(@message)">N/A</xsl:when>
+            <xsl:when test="not(@type) and not(@message)">N/A</xsl:when>
             <xsl:otherwise>
-                <xsl:value-of select="@message"/>
+                <xsl:value-of select="normalize-space(concat(@type, ' ', @message))"/>
             </xsl:otherwise>
         </xsl:choose>
         <!-- display the stacktrace -->
