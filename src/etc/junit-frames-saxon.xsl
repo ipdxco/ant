@@ -266,11 +266,11 @@
         h6 {
         margin-bottom: 0.5em; font: bold 100% verdana,arial,helvetica
         }
-        .Error {
-        font-weight:bold; color:red;
-        }
         .Failure {
         font-weight:bold; color:purple;
+        }
+        .Error {
+        font-weight:bold; color:red;
         }
         .Properties {
         text-align:right;
@@ -625,8 +625,8 @@
                 <xsl:call-template name="pageHeader"/>
                 <h2>Summary</h2>
                 <xsl:variable name="testCount" select="sum(testsuite/@tests)"/>
-                <xsl:variable name="errorCount" select="sum(testsuite/@errors)"/>
                 <xsl:variable name="failureCount" select="sum(testsuite/@failures)"/>
+                <xsl:variable name="errorCount" select="sum(testsuite/@errors)"/>
                 <xsl:variable name="skippedCount" select="sum(testsuite/@skipped)" />
                 <xsl:variable name="timeCount" select="sum(testsuite/@time)"/>
                 <xsl:variable name="successRate" select="($testCount - $failureCount - $errorCount) div $testCount"/>
@@ -642,8 +642,8 @@
                     <tr valign="top">
                         <xsl:attribute name="class">
                             <xsl:choose>
-                                <xsl:when test="$errorCount &gt; 0">Error</xsl:when>
                                 <xsl:when test="$failureCount &gt; 0">Failure</xsl:when>
+                                <xsl:when test="$errorCount &gt; 0">Error</xsl:when>
                                 <xsl:otherwise>Pass</xsl:otherwise>
                             </xsl:choose>
                         </xsl:attribute>
@@ -675,15 +675,17 @@
                 <table class="details" border="0" cellpadding="5" cellspacing="2" width="95%">
                     <xsl:call-template name="testsuite.test.header"/>
                     <xsl:for-each select="testsuite[not(./@package = preceding-sibling::testsuite/@package)]">
-                        <xsl:sort select="@package" order="ascending"/>
+                        <xsl:sort select="sum(/testsuites/testsuite[./@package = current()/@package]/@failures)" order="descending" data-type="number"/>
+                        <xsl:sort select="sum(/testsuites/testsuite[./@package = current()/@package]/@errors)" order="descending" data-type="number"/>
+                        <xsl:sort select="@package"/>
                         <!-- get the node set containing all testsuites that have the same package -->
                         <xsl:variable name="insamepackage" select="/testsuites/testsuite[./@package = current()/@package]"/>
                         <tr valign="top">
                             <!-- display a failure if there is any failure/error in the package -->
                             <xsl:attribute name="class">
                                 <xsl:choose>
-                                    <xsl:when test="sum($insamepackage/@errors) &gt; 0">Error</xsl:when>
                                     <xsl:when test="sum($insamepackage/@failures) &gt; 0">Failure</xsl:when>
+                                    <xsl:when test="sum($insamepackage/@errors) &gt; 0">Error</xsl:when>
                                     <xsl:otherwise>Pass</xsl:otherwise>
                                 </xsl:choose>
                             </xsl:attribute>
@@ -692,8 +694,8 @@
                                 <xsl:if test="@package = ''">&lt;none&gt;</xsl:if>
                             </a></td>
                             <td><xsl:value-of select="sum($insamepackage/@tests)"/></td>
-                            <td><xsl:value-of select="sum($insamepackage/@errors)"/></td>
                             <td><xsl:value-of select="sum($insamepackage/@failures)"/></td>
+                            <td><xsl:value-of select="sum($insamepackage/@errors)"/></td>
                             <td><xsl:value-of select="sum($insamepackage/@skipped)" /></td>
                             <td>
                                 <xsl:call-template name="display-time">
@@ -787,8 +789,8 @@
         <tr valign="top">
             <th width="80%">Name</th>
             <th>Tests</th>
-            <th>Errors</th>
             <th>Failures</th>
+            <th>Errors</th>
             <th>Skipped</th>
             <th nowrap="nowrap">Time(s)</th>
             <th nowrap="nowrap">Time Stamp</th>
@@ -816,8 +818,8 @@
         <tr valign="top">
             <xsl:attribute name="class">
                 <xsl:choose>
-                    <xsl:when test="@errors[.&gt; 0]">Error</xsl:when>
                     <xsl:when test="@failures[.&gt; 0]">Failure</xsl:when>
+                    <xsl:when test="@errors[.&gt; 0]">Error</xsl:when>
                     <xsl:otherwise>Pass</xsl:otherwise>
                 </xsl:choose>
             </xsl:attribute>
@@ -825,21 +827,21 @@
             <td><a title="Display all tests" href="{@id}_{@name}.html"><xsl:apply-templates select="@tests"/></a></td>
             <td>
                 <xsl:choose>
-                    <xsl:when test="@errors != 0">
-                        <a title="Display only errors" href="{@id}_{@name}-errors.html"><xsl:apply-templates select="@errors"/></a>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:apply-templates select="@errors"/>
-                    </xsl:otherwise>
-                </xsl:choose>
-            </td>
-            <td>
-                <xsl:choose>
                     <xsl:when test="@failures != 0">
                         <a title="Display only failures" href="{@id}_{@name}-fails.html"><xsl:apply-templates select="@failures"/></a>
                     </xsl:when>
                     <xsl:otherwise>
                         <xsl:apply-templates select="@failures"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </td>
+            <td>
+                <xsl:choose>
+                    <xsl:when test="@errors != 0">
+                        <a title="Display only errors" href="{@id}_{@name}-errors.html"><xsl:apply-templates select="@errors"/></a>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:apply-templates select="@errors"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </td>
@@ -867,8 +869,8 @@
         <tr valign="top">
             <xsl:attribute name="class">
                 <xsl:choose>
-                    <xsl:when test="error">Error</xsl:when>
                     <xsl:when test="failure">Failure</xsl:when>
+                    <xsl:when test="error">Error</xsl:when>
                     <xsl:otherwise>TableRowColor</xsl:otherwise>
                 </xsl:choose>
             </xsl:attribute>
@@ -913,24 +915,38 @@
                 </xsl:call-template>
             </td>
         </tr>
-        <xsl:if test="string-length(normalize-space(./system-out))!=0 or string-length(normalize-space(./system-err))!=0">
+        <xsl:if test="string-length(normalize-space(./system-out))!=0">
             <tr valign="top">
                 <td colspan="4">
+                    <xsl:attribute name="colspan">
+                        <xsl:choose>
+                            <xsl:when test="boolean($show.class)">5</xsl:when>
+                            <xsl:otherwise>4</xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
                     <xsl:if test="string-length(normalize-space(./system-out))!=0">
-                        <div class="Properties">
-                            <details>
-                                <summary style="cursor: pointer;">System.out&#160;&#187;</summary>
-                                <pre style="text-align: left;"><xsl:value-of select="./system-out"/></pre>
-                            </details>
-                        </div>
+                        <details>
+                            <summary style="cursor: pointer;">System.out&#160;&#187;</summary>
+                            <pre><xsl:value-of select="./system-out"/></pre>
+                        </details>
                     </xsl:if>
+                </td>
+            </tr>
+        </xsl:if>
+        <xsl:if test="string-length(normalize-space(./system-err))!=0">
+            <tr valign="top">
+                <td colspan="4">
+                    <xsl:attribute name="colspan">
+                        <xsl:choose>
+                            <xsl:when test="boolean($show.class)">5</xsl:when>
+                            <xsl:otherwise>4</xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
                     <xsl:if test="string-length(normalize-space(./system-err))!=0">
-                        <div class="Properties">
-                            <details>
-                                <summary style="cursor: pointer;">System.err&#160;&#187;</summary>
-                                <pre style="text-align: left;"><xsl:value-of select="./system-err"/></pre>
-                            </details>
-                        </div>
+                        <details>
+                            <summary style="cursor: pointer;">System.err&#160;&#187;</summary>
+                            <pre><xsl:value-of select="./system-err"/></pre>
+                        </details>
                     </xsl:if>
                 </td>
             </tr>
