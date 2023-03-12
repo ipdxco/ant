@@ -111,11 +111,11 @@
       h6 {
         margin-bottom: 0.5em; font: bold 100% verdana,arial,helvetica
       }
-      .Error {
-        font-weight:bold; color:red;
-      }
       .Failure {
         font-weight:bold; color:purple;
+      }
+      .Error {
+        font-weight:bold; color:red;
       }
       .Properties {
         text-align:right;
@@ -195,11 +195,14 @@
             <xsl:call-template name="testsuite.test.header"/>
             <!-- list all packages recursively -->
             <xsl:for-each select="./testsuite[not(./@package = preceding-sibling::testsuite/@package)]">
+                <xsl:sort select="sum(/testsuites/testsuite[./@package = current()/@package]/@failures)" order="descending" data-type="number"/>
+                <xsl:sort select="sum(/testsuites/testsuite[./@package = current()/@package]/@errors)" order="descending" data-type="number"/>
                 <xsl:sort select="@package"/>
+
                 <xsl:variable name="testsuites-in-package" select="/testsuites/testsuite[./@package = current()/@package]"/>
                 <xsl:variable name="testCount" select="sum($testsuites-in-package/@tests)"/>
-                <xsl:variable name="errorCount" select="sum($testsuites-in-package/@errors)"/>
                 <xsl:variable name="failureCount" select="sum($testsuites-in-package/@failures)"/>
+                <xsl:variable name="errorCount" select="sum($testsuites-in-package/@errors)"/>
                 <xsl:variable name="skippedCount" select="sum($testsuites-in-package/@skipped)" />
                 <xsl:variable name="timeCount" select="sum($testsuites-in-package/@time)"/>
 
@@ -214,16 +217,16 @@
                     </xsl:attribute>
                     <td><a href="#{@package}"><xsl:value-of select="@package"/></a></td>
                     <td><xsl:value-of select="$testCount"/></td>
-                    <td><xsl:value-of select="$errorCount"/></td>
                     <td><xsl:value-of select="$failureCount"/></td>
+                    <td><xsl:value-of select="$errorCount"/></td>
                     <td><xsl:value-of select="$skippedCount" /></td>
                     <td>
                     <xsl:call-template name="display-time">
                         <xsl:with-param name="value" select="$timeCount"/>
                     </xsl:call-template>
                     </td>
-                    <td><xsl:value-of select="$testsuites-in-package/@timestamp"/></td>
-                    <td><xsl:value-of select="$testsuites-in-package/@hostname"/></td>
+                    <td><xsl:value-of select="$testsuites-in-package[1]/@timestamp"/></td>
+                    <td><xsl:value-of select="$testsuites-in-package[1]/@hostname"/></td>
                 </tr>
             </xsl:for-each>
         </table>
@@ -233,7 +236,7 @@
     <!-- ================================================================== -->
     <!-- Write a package level report                                       -->
     <!-- It creates a table with values from the document:                  -->
-    <!-- Name | Tests | Errors | Failures | Time                            -->
+    <!-- Name | Tests | Failures | Errors | Time                            -->
     <!-- ================================================================== -->
     <xsl:template name="packages">
         <!-- create an anchor to this package name -->
@@ -280,6 +283,22 @@
                     Properties &#187;
                 </a>
             </div>
+            <xsl:if test="string-length(normalize-space(./system-out))!=0">
+                <div class="Properties">
+                    <details>
+                        <summary>System.out&#160;&#187;</summary>
+                        <pre style="text-align: left;"><xsl:value-of select="./system-out"/></pre>
+                    </details>
+                </div>
+            </xsl:if>
+            <xsl:if test="string-length(normalize-space(./system-err))!=0">
+                <div class="Properties">
+                    <details>
+                        <summary>System.err&#160;&#187;</summary>
+                        <pre style="text-align: left;"><xsl:value-of select="./system-err"/></pre>
+                    </details>
+                </div>
+            </xsl:if>
             <p/>
 
             <a href="#top">Back to top</a>
@@ -289,8 +308,8 @@
     <xsl:template name="summary">
         <h2>Summary</h2>
         <xsl:variable name="testCount" select="sum(testsuite/@tests)"/>
-        <xsl:variable name="errorCount" select="sum(testsuite/@errors)"/>
         <xsl:variable name="failureCount" select="sum(testsuite/@failures)"/>
+        <xsl:variable name="errorCount" select="sum(testsuite/@errors)"/>
         <xsl:variable name="skippedCount" select="sum(testsuite/@skipped)" />
         <xsl:variable name="timeCount" select="sum(testsuite/@time)"/>
         <xsl:variable name="successRate" select="($testCount - $failureCount - $errorCount) div $testCount"/>
@@ -364,8 +383,8 @@
     <tr valign="top">
         <th width="80%">Name</th>
         <th>Tests</th>
-        <th>Errors</th>
         <th>Failures</th>
+        <th>Errors</th>
         <th>Skipped</th>
         <th nowrap="nowrap">Time(s)</th>
     </tr>
@@ -376,8 +395,8 @@
     <tr valign="top">
         <th width="80%">Name</th>
         <th>Tests</th>
-        <th>Errors</th>
         <th>Failures</th>
+        <th>Errors</th>
         <th>Skipped</th>
         <th nowrap="nowrap">Time(s)</th>
         <th nowrap="nowrap">Time Stamp</th>
@@ -410,8 +429,8 @@
         <!-- print testsuite information -->
         <td><a href="#{@name}"><xsl:value-of select="@name"/></a></td>
         <td><xsl:value-of select="@tests"/></td>
-        <td><xsl:value-of select="@errors"/></td>
         <td><xsl:value-of select="@failures"/></td>
+        <td><xsl:value-of select="@errors"/></td>
         <td><xsl:value-of select="@skipped" /></td>
         <td>
             <xsl:call-template name="display-time">
@@ -455,6 +474,30 @@
             </xsl:call-template>
         </td>
     </tr>
+    <xsl:if test="string-length(normalize-space(./system-out))!=0">
+        <tr valign="top">
+            <td colspan="4">
+                <xsl:if test="string-length(normalize-space(./system-out))!=0">
+                    <details>
+                        <summary style="cursor: pointer;">System.out&#160;&#187;</summary>
+                        <pre><xsl:value-of select="./system-out"/></pre>
+                    </details>
+                </xsl:if>
+            </td>
+        </tr>
+    </xsl:if>
+    <xsl:if test="string-length(normalize-space(./system-err))!=0">
+        <tr valign="top">
+            <td colspan="4">
+                <xsl:if test="string-length(normalize-space(./system-err))!=0">
+                    <details>
+                        <summary style="cursor: pointer;">System.err&#160;&#187;</summary>
+                        <pre><xsl:value-of select="./system-err"/></pre>
+                    </details>
+                </xsl:if>
+            </td>
+        </tr>
+    </xsl:if>
 </xsl:template>
 
 
@@ -473,9 +516,9 @@
 <!-- Style for the error, failure and skipped in the testcase template -->
 <xsl:template name="display-failures">
     <xsl:choose>
-        <xsl:when test="not(@message)">N/A</xsl:when>
+        <xsl:when test="not(@type) and not(@message)">N/A</xsl:when>
         <xsl:otherwise>
-            <xsl:value-of select="@message"/>
+            <xsl:value-of select="normalize-space(concat(@type, ' ', @message))"/>
         </xsl:otherwise>
     </xsl:choose>
     <!-- display the stacktrace -->
