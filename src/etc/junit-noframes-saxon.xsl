@@ -225,8 +225,8 @@
                         <xsl:with-param name="value" select="$timeCount"/>
                     </xsl:call-template>
                     </td>
-                    <td><xsl:value-of select="$testsuites-in-package/@timestamp"/></td>
-                    <td><xsl:value-of select="$testsuites-in-package/@hostname"/></td>
+                    <td><xsl:value-of select="$testsuites-in-package[1]/@timestamp"/></td>
+                    <td><xsl:value-of select="$testsuites-in-package[1]/@hostname"/></td>
                 </tr>
             </xsl:for-each>
         </table>

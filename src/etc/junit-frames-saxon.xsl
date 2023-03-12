@@ -702,8 +702,8 @@
                                     <xsl:with-param name="value" select="sum($insamepackage/@time)"/>
                                 </xsl:call-template>
                             </td>
-                            <td><xsl:value-of select="$insamepackage/@timestamp"/></td>
-                            <td><xsl:value-of select="$insamepackage/@hostname"/></td>
+                            <td><xsl:value-of select="$insamepackage[1]/@timestamp"/></td>
+                            <td><xsl:value-of select="$insamepackage[1]/@hostname"/></td>
                         </tr>
                     </xsl:for-each>
                 </table>
