@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+	This stylesheet can be used to generate a JUnit XML from a gotest JSON output.
+-->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   version="3.0"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -8,10 +11,6 @@
   expand-text="yes">
 
   <xsl:output method="xml" indent="yes"/>
-
-  <xsl:key name="package" match="." use="?Package"/>
-
-  <xsl:param name="json"/>
 
   <!-- timestamp on testsuite and testcase -->
   <xsl:template match=".">
