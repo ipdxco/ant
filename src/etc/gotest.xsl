@@ -52,13 +52,16 @@
             <testcase name="{$test}" time="{$result?Elapsed}" timestamp="{min($timestamps)}">
               <xsl:choose>
                 <xsl:when test="$result?Action = 'fail'">
-                  <failure message="FAIL"></failure>
+                  <failure message="FAIL">{$output}</failure>
                 </xsl:when>
                 <xsl:when test="$result?Action = 'skip'">
                   <skipped message="SKIP"></skipped>
+                  <system-out>{$output}</system-out>
                 </xsl:when>
+                <otherwise>
+                  <system-out>{$output}</system-out>
+                </otherwise>
               </xsl:choose>
-              <system-out>{$output}</system-out>
             </testcase>
           </xsl:for-each-group>
         </testsuite>
