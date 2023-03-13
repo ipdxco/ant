@@ -1,3 +1,31 @@
+Changes from Ant 1.10.13 TO Ant 1.10.14
+=======================================
+
+Fixed bugs:
+-----------
+
+ * log only the stylesheet name in the xslt task.
+   Github Pull Request #199
+
+ * junitlauncher task's "test" and "listener" elements which take
+   a "outputDir" property were incorrectly resolving the outputDir
+   against the current working directory instead of the project's
+   basedir. This has now been fixed.
+   Bugzilla Report 66504  
+
+ * regexmapper would, in some cases, incorrectly consume backslash characters
+   from the "to" attribute, resulting in missing backslashes in the output.
+   This is now fixed.
+   Bugzilla Report 66468
+
+Other changes:
+--------------
+
+ * <fork> element of the junitlauncher task now has a new optional "java"
+   attribute which can be used to point to a different Java installation
+   for runnning the forked tests.
+   Bugzilla Report 66464
+
 Changes from Ant 1.10.12 TO Ant 1.10.13
 =======================================
 
@@ -39,6 +67,18 @@ Fixed bugs:
    will be left untouched.
    Bugzilla Report 66164
 
+ * parsing tar entries with multiple NUL bytes in their name would
+   include garbage bytes as the name included all bytes up to the last
+   NUL rather than the first.
+   Github Pull Request #194
+
+ * loadresource might log warnings even though quiet was set to true
+   Bugzilla Report 65647
+
+ * javac task would add paths constructs containing wildcards to the
+   internally created argument file where wildcards are not allowed
+   Bugzilla Report 65621
+
 Other changes:
 --------------
 
@@ -62,6 +102,9 @@ Other changes:
  * <manifest> will now create the parent directory of the manifestFile
    attribute if it doesn't exist.
    Bugzilla Report 66231
+
+ * org.apache.tools.ant.BuildLogger now has a new method getMessageOutputLevel()
+   which returns the currently set message output level.
 
 Changes from Ant 1.10.11 TO Ant 1.10.12
 =======================================
