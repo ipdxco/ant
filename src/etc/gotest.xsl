@@ -61,9 +61,9 @@
                   <skipped message="SKIP"></skipped>
                   <system-out>{$output}</system-out>
                 </xsl:when>
-                <otherwise>
+                <xsl:otherwise>
                   <system-out>{$output}</system-out>
-                </otherwise>
+                </xsl:otherwise>
               </xsl:choose>
             </testcase>
           </xsl:for-each-group>
