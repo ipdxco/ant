@@ -40,8 +40,8 @@
           <xsl:for-each-group select="$tests" group-by="$array(.)?Test">
             <xsl:variable name="test" select="current-grouping-key()" />
             <xsl:variable name="info" select="current-group()" />
-            <xsl:variable name="result"
-              select="$array($info[$array(.)?Elapsed instance of xs:double])" />
+            <xsl:variable name="index" select="$info[$array(.)?Elapsed instance of xs:double]" />
+            <xsl:variable name="result" select="if ($index) then $array($index) else parse-json('{&quot;Action&quot;: &quot;error&quot;, &quot;Elapsed&quot;: &quot;0&quot;}')" />
             <xsl:variable name="output">
               <xsl:for-each select="$info[$array(.)?Action = 'output']">
                 <value>{replace($array(.)?Output, '\\n', '&#xa;')}</value>
@@ -54,6 +54,10 @@
             </xsl:variable>
             <testcase name="{$test}" time="{$result?Elapsed}" timestamp="{min($timestamps)}">
               <xsl:choose>
+                <xsl:when test="$result?Action = 'error'">
+                  <error message="ERROR">panic</error>
+                  <system-out>{$output}</system-out>
+                </xsl:when>
                 <xsl:when test="$result?Action = 'fail'">
                   <failure message="FAIL">{$output}</failure>
                 </xsl:when>
